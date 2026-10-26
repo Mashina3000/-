@@ -1,14 +1,16 @@
-{
+<escape>{
   "name": "geometry-dash",
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "description": "Geometry Dash Custom - a custom Geometry Dash game",
+  "author": "Geometry Dash Custom",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "desktop": "electron .",
-    "dist:win": "npm run build && electron-builder --win nsis"
+    "dist:win": "npm run build && electron-builder --win nsis --publish never"
   },
   "dependencies": {
     "pixi.js": "^8.5.0"
@@ -49,4 +51,4 @@
       "createStartMenuShortcut": true
     }
   }
-}
+}</escape>
