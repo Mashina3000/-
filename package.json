@@ -1,53 +1,54 @@
-"name": "geometry-dash",
-"private": true,
-"version": "0.1.0",
-"type": "module",
-"description": "Geometry Dash Custom - a custom Geometry Dash game",
-"author": "Geometry Dash Custom",
-"scripts": {
-"dev": "vite",
-"build": "tsc --noEmit && vite build",
-"preview": "vite preview",
-"desktop": "electron .",
-"dist": "npm run build && electron-builder --win nsis --publish never"
-},
-"dependencies": {
-"pixi.js": "^8.5.0"
-},
-"devDependencies": {
-"typescript": "^5.6.0",
-"vite": "^5.4.0",
-"electron": "^33.2.1",
-"electron-builder": "^25.1.8"
-},
-"main": "electron.cjs",
-"build": {
-"appId": "com.custom.geometrydash",
-"productName": "Geometry Dash Custom",
-"directories": {
-"output": "release"
-},
-"files": [
-"dist/\*\*/\*",
-"electron.cjs",
-"package.json"
-],
-"win": {
-"target": [
 {
-"target": "nsis",
-"arch": [
-"x64"
-]
+  "name": "geometry-dash",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Geometry Dash Custom - a custom Geometry Dash game",
+  "author": "Geometry Dash Custom",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "desktop": "electron .",
+    "dist:win": "npm run build && electron-builder --win nsis --publish never"
+  },
+  "dependencies": {
+    "pixi.js": "^8.5.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "vite": "^5.4.0",
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+  "main": "electron.cjs",
+  "build": {
+    "appId": "com.custom.geometrydash",
+    "productName": "Geometry Dash Custom",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron.cjs",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "Geometry-Dash-Custom-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
 }
-],
-"artifactName": "Geometry-Dash-Custom-Setup-${version}.${ext}"
-},
-"nsis": {
-"oneClick": false,
-"allowToChangeInstallationDirectory": true,
-"createDesktopShortcut": true,
-"createStartMenuShortcut": true
-}
-}
-}\</escape>
