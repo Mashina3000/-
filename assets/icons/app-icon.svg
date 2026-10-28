@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#07133f"/><stop offset=".52" stop-color="#123cff"/><stop offset="1" stop-color="#050821"/></linearGradient>
+ <linearGradient id="cube" x1="0" y1="0" x2=".9" y2="1"><stop stop-color="#fff96b"/><stop offset=".48" stop-color="#ffb52d"/><stop offset="1" stop-color="#ff572e"/></linearGradient>
+ <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#bfffff"/><stop offset=".5" stop-color="#00eaff"/><stop offset="1" stop-color="#167cff"/></linearGradient>
+ <linearGradient id="portal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4dfaff"/><stop offset=".5" stop-color="#8067ff"/><stop offset="1" stop-color="#ff4ee7"/></linearGradient>
+ <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="18" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <clipPath id="clip"><rect x="48" y="48" width="928" height="928" rx="190"/></clipPath>
+</defs>
+<g clip-path="url(#clip)">
+ <rect width="1024" height="1024" fill="url(#bg)"/>
+ <path d="M-40 680 330 310 450 430 130 760Z" fill="#00d9ff" opacity=".13"/><path d="M700 -40 1040 300 920 420 600 100Z" fill="#8b5cff" opacity=".23"/>
+ <g fill="none" stroke="#2cecff" stroke-width="9" opacity=".34"><path d="M0 190H1024M0 300H1024M0 410H1024M0 520H1024M0 630H1024M0 740H1024M0 850H1024"/><path d="M190 0V1024M300 0V1024M410 0V1024M520 0V1024M630 0V1024M740 0V1024M850 0V1024"/></g>
+ <g filter="url(#glow)" fill="none" stroke="url(#portal)" stroke-width="28"><ellipse cx="790" cy="490" rx="86" ry="178" transform="rotate(18 790 490)"/></g>
+ <g filter="url(#glow)"><path d="M120 820 250 590 380 820Z" fill="#142c80" stroke="#e9ffff" stroke-width="22"/><path d="M650 250 750 80 850 250Z" fill="#2444d6" stroke="#2cf3ff" stroke-width="18"/></g>
+ <g transform="translate(470 505) rotate(-14)" filter="url(#glow)">
+  <rect x="-232" y="-232" width="464" height="464" rx="58" fill="#06102e" stroke="#05091f" stroke-width="38"/>
+  <rect x="-222" y="-222" width="444" height="444" rx="48" fill="url(#cube)" stroke="#fff8bd" stroke-width="12"/>
+  <path d="M-180 -175H170L-175 170Z" fill="#fff" opacity=".12"/>
+  <path d="M-150 -68Q-92 -110 -38 -64L-52 -5Q-100 18 -143 -14Z" fill="#08143c" stroke="#11142d" stroke-width="12"/>
+  <path d="M42 -55Q100 -95 150 -44L133 13Q82 33 45 0Z" fill="#08143c" stroke="#11142d" stroke-width="12"/>
+  <path d="M-128 -34Q-90 -5 -58 -27L-67 -3Q-104 12 -128 -12Z" fill="url(#cyan)"/><path d="M62 -21Q98 5 128 -15L119 8Q87 20 65 1Z" fill="url(#cyan)"/>
+  <path d="M-92 92Q0 148 92 80" fill="none" stroke="#5a160f" stroke-width="20" stroke-linecap="round"/>
+  <path d="M-82 94Q0 130 82 84" fill="none" stroke="#fff0a6" stroke-width="7" stroke-linecap="round"/>
+ </g>
+ <path d="M0 930 1024 700V1024H0Z" fill="#02071d" opacity=".4"/>
+ <path d="M0 952H1024" stroke="#36efff" stroke-width="12" opacity=".85"/>
+</g>
+<rect x="48" y="48" width="928" height="928" rx="190" fill="none" stroke="#44f5ff" stroke-width="22"/>
+</svg>
