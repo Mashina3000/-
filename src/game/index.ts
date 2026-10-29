@@ -16,7 +16,13 @@ function skinImage(src: string): HTMLImageElement {
 
 export function startLevel(id: string) {
   activeCleanup?.();
-  const level = LEVELS.find((l) => l.id === id) ?? LEVELS[0];
+  const customData = id === 'custom-editor' ? (() => {
+    try { return JSON.parse(localStorage.getItem('gd.editor.level.v1') || '{}') as { name?: string; tiles?: string[]; cols?: number; rows?: number }; }
+    catch { return {}; }
+  })() : null;
+  const level = id === 'custom-editor'
+    ? { ...LEVELS[0], id, name: customData?.name || 'Мой уровень', subtitle: 'CUSTOM LEVEL • EDITOR PLAYTEST', color: '#a56cff', bpm: 120, modes: ['cube', 'ship', 'ball'] as ('cube' | 'ship' | 'ball')[] }
+    : LEVELS.find((l) => l.id === id) ?? LEVELS[0];
   set((s) => { s.lastLevel = level.id; });
 
   const root = h('section', { class: 'game-screen' });
@@ -53,7 +59,16 @@ export function startLevel(id: string) {
   ];
   // Later campaign levels get deterministic, denser obstacle sequences and varied objects.
   // The first four levels keep their hand-authored patterns; levels 5–22 use a seeded pattern.
-  const pattern: [number, Obstacle['type'], number?, number?][] = levelIndex < 4 ? basePattern : (() => {
+  const customPattern: [number, Obstacle['type'], number?, number?][] = id === 'custom-editor'
+    ? (Array.isArray(customData?.tiles) ? customData!.tiles : []).flatMap((tile, i) => {
+        const col = i % Math.max(1, Number(customData?.cols) || 32);
+        const x = 520 + col * 380;
+        if (tile === 'spike') return [[x, 'spike'] as [number, Obstacle['type']]];
+        if (tile === 'block') return [[x, 'block'] as [number, Obstacle['type']]];
+        return [];
+      }).sort((a, b) => a[0] - b[0])
+    : [];
+  const pattern: [number, Obstacle['type'], number?, number?][] = id === 'custom-editor' ? customPattern : levelIndex < 4 ? basePattern : (() => {
     const generated: [number, Obstacle['type'], number?, number?][] = [];
     const types: Obstacle['type'][] = levelIndex < 6
       ? ['spike', 'spike', 'block', 'pad', 'platform']
@@ -80,8 +95,56 @@ export function startLevel(id: string) {
     }
   }
 
-  const handAuthoredGates: ModeGate[] = level.id === 'l2' ? [{ x: 1900, mode: 'ship', color: '#ffb52e' }, { x: 4450, mode: 'cube', color: '#61f7ff' }, { x: 6900, mode: 'ball', color: '#f66bff' }, { x: 9400, mode: 'cube', color: '#61f7ff' }, { x: 11300, mode: 'ship', color: '#ffb52e' }, { x: 12800, mode: 'cube', color: '#61f7ff' }] : level.id === 'l3' ? [{x:2200,mode:'ship',color:'#ffb66d'},{x:4700,mode:'cube',color:'#ffdb72'},{x:8000,mode:'ship',color:'#ffb66d'},{x:10900,mode:'cube',color:'#ffdb72'}] : level.id === 'l4' ? [{x:2500,mode:'ball',color:'#b7ff39'},{x:5000,mode:'cube',color:'#b7ff39'},{x:7600,mode:'ship',color:'#b7ff39'},{x:10200,mode:'cube',color:'#b7ff39'},{x:12500,mode:'ball',color:'#b7ff39'}] : [];
-  const gates: ModeGate[] = levelIndex < 4 ? handAuthoredGates : (level.modes.length > 1 ? Array.from({ length: Math.min(6, level.modes.length + Math.floor(levelIndex / 5)) }, (_, n) => ({ x: Math.round(totalDistance * (.18 + n * (.62 / Math.max(1, Math.min(6, level.modes.length + Math.floor(levelIndex / 5)) - 1))), mode: level.modes[(n + 1) % level.modes.length], color: level.color })) : []);
+  const handAuthoredGates: ModeGate[] = (() => {
+    if (id === 'custom-editor') {
+      const tiles = Array.isArray(customData?.tiles) ? customData!.tiles : [];
+      return tiles.flatMap((tile, i) => {
+        const col = i % Math.max(1, Number(customData?.cols) || 32);
+        const mode = tile === 'ship' ? 'ship' : tile === 'ball' ? 'ball' : tile === 'cube' ? 'cube' : null;
+        return mode ? [{ x: 520 + col * 380, mode, color: '#a56cff' } as ModeGate] : [];
+      }).sort((a, b) => a.x - b.x);
+    }
+    if (level.id === 'l2') {
+      return [
+        { x: 1900, mode: 'ship', color: '#ffb52e' },
+        { x: 4450, mode: 'cube', color: '#61f7ff' },
+        { x: 6900, mode: 'ball', color: '#f66bff' },
+        { x: 9400, mode: 'cube', color: '#61f7ff' },
+        { x: 11300, mode: 'ship', color: '#ffb52e' },
+        { x: 12800, mode: 'cube', color: '#61f7ff' },
+      ];
+    }
+    if (level.id === 'l3') {
+      return [
+        { x: 2200, mode: 'ship', color: '#ffb66d' },
+        { x: 4700, mode: 'cube', color: '#ffdb72' },
+        { x: 8000, mode: 'ship', color: '#ffb66d' },
+        { x: 10900, mode: 'cube', color: '#ffdb72' },
+      ];
+    }
+    if (level.id === 'l4') {
+      return [
+        { x: 2500, mode: 'ball', color: '#b7ff39' },
+        { x: 5000, mode: 'cube', color: '#b7ff39' },
+        { x: 7600, mode: 'ship', color: '#b7ff39' },
+        { x: 10200, mode: 'cube', color: '#b7ff39' },
+        { x: 12500, mode: 'ball', color: '#b7ff39' },
+      ];
+    }
+    return [];
+  })();
+  const generatedGateCount = Math.min(6, level.modes.length + Math.floor(levelIndex / 5));
+  const gates: ModeGate[] = id === 'custom-editor'
+    ? handAuthoredGates
+    : levelIndex < 4
+    ? handAuthoredGates
+    : level.modes.length > 1
+      ? Array.from({ length: generatedGateCount }, (_, n) => ({
+          x: Math.round(totalDistance * (0.18 + n * (0.62 / Math.max(1, generatedGateCount - 1)))),
+          mode: level.modes[(n + 1) % level.modes.length],
+          color: level.color,
+        }))
+      : [];
   let mode: 'cube' | 'ship' | 'ball' = 'cube';
   let pressed = false;
   let distance = 0, vy = 0, cubeY = 0, rotation = 0;
