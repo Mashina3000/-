@@ -36,12 +36,13 @@ export function startLevel(id: string) {
   const ctx = canvas.getContext('2d')!;
   let width = 0, height = 0, dpr = 1;
   const floorY = () => height * .79;
-  const worldSpeed = level.id === 'l4' ? 365 : level.id === 'l3' ? 340 : level.id === 'l2' ? 320 : 300;
+  const levelIndex = Math.max(0, LEVELS.findIndex((item) => item.id === level.id));
+  const worldSpeed = Math.min(440, 292 + levelIndex * 6.2); 
   const cubeSize = 34;
-  const totalDistance = level.id === 'l4' ? 15800 : level.id === 'l3' ? 15000 : level.id === 'l2' ? 14200 : 12600;
+  const totalDistance = 12600 + levelIndex * 310;
   const obstacles: Obstacle[] = [];
   // Расстановка в такт 120 BPM: препятствия читаются заранее, одиночные и парные шипы.
-  const pattern: [number, Obstacle['type'], number?, number?][] = level.id === 'l4' ? [
+  const basePattern: [number, Obstacle['type'], number?, number?][] = level.id === 'l4' ? [
     [560,'spike'],[850,'saw'],[1160,'spike',2],[1570,'block'],[1950,'pad'],[2290,'spike',3],[2760,'saw'],[3110,'platform',2],[3560,'spike',2],[3990,'orb'],[4320,'block'],[4680,'saw'],[5090,'spike',3],[5570,'pad'],[5900,'spike',2],[6380,'platform',3],[6880,'saw'],[7260,'spike',2],[7720,'orb'],[8090,'block'],[8460,'spike',3],[8970,'saw'],[9360,'platform',2],[9820,'spike',2],[10300,'pad'],[10650,'saw'],[11100,'spike',3],[11600,'orb'],[11960,'block'],[12400,'saw'],[12800,'spike',2],[13300,'platform',3],[13800,'spike',3],[14300,'saw'],[14800,'spike',2]
   ] : level.id === 'l3' ? [
     [600,'spike'],[930,'block'],[1280,'spike',2],[1740,'saw'],[2130,'platform',2],[2550,'spike',2],[3010,'pad'],[3350,'spike',3],[3900,'saw'],[4330,'block'],[4710,'spike',2],[5190,'platform',3],[5700,'saw'],[6130,'spike',3],[6680,'orb'],[7020,'block'],[7440,'spike',2],[7890,'saw'],[8330,'platform',2],[8780,'spike',3],[9340,'pad'],[9680,'saw'],[10150,'spike',2],[10620,'platform',3],[11150,'spike',3],[11700,'saw'],[12150,'orb'],[12500,'block'],[12920,'spike',2],[13400,'saw'],[13900,'spike',3],[14500,'spike',2]
@@ -50,6 +51,28 @@ export function startLevel(id: string) {
   ] : [
     [760,'spike'],[1120,'spike'],[1500,'spike',2],[2050,'block'],[2420,'spike'],[2780,'spike',2],[3330,'saw'],[3700,'spike'],[4070,'platform',2],[4440,'spike',2],[5010,'block'],[5400,'spike'],[5780,'spike',2],[6400,'pad'],[6800,'spike'],[7180,'saw'],[7560,'spike',2],[8150,'block'],[8550,'spike'],[8930,'spike',2],[9500,'platform',2],[9890,'spike'],[10270,'spike'],[10650,'spike',2],[11350,'block'],[11730,'saw'],[12000,'spike',2]
   ];
+  // Later campaign levels get deterministic, denser obstacle sequences and varied objects.
+  // The first four levels keep their hand-authored patterns; levels 5–22 use a seeded pattern.
+  const pattern: [number, Obstacle['type'], number?, number?][] = levelIndex < 4 ? basePattern : (() => {
+    const generated: [number, Obstacle['type'], number?, number?][] = [];
+    const types: Obstacle['type'][] = levelIndex < 6
+      ? ['spike', 'spike', 'block', 'pad', 'platform']
+      : levelIndex < 12
+        ? ['spike', 'spike', 'block', 'saw', 'pad', 'platform', 'orb']
+        : ['spike', 'spike', 'saw', 'block', 'pad', 'platform', 'orb', 'spike'];
+    let x = 620;
+    let seed = levelIndex * 7919 + 17;
+    const rand = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+    while (x < totalDistance - 500) {
+      const type = types[Math.floor(rand() * types.length)];
+      const count = type === 'spike' && levelIndex > 9 && rand() > .43 ? 2 + (levelIndex > 16 && rand() > .65 ? 1 : 0) : 1;
+      generated.push([Math.round(x), type, count]);
+      const baseGap = Math.max(245, 455 - levelIndex * 8);
+      x += baseGap + rand() * Math.max(90, 240 - levelIndex * 5);
+      if (levelIndex > 13 && rand() > .72) x -= 55;
+    }
+    return generated;
+  })();
   for (const [x, type, count = 1, spacing = 34] of pattern) {
     for (let n = 0; n < count; n++) {
       const dimensions = type === 'block' ? [42, 42] : type === 'saw' ? [42, 42] : type === 'platform' ? [62, 22] : type === 'pad' ? [30, 12] : type === 'orb' ? [30, 30] : [34, 34];
@@ -57,7 +80,8 @@ export function startLevel(id: string) {
     }
   }
 
-  const gates: ModeGate[] = level.id === 'l2' ? [{ x: 1900, mode: 'ship', color: '#ffb52e' }, { x: 4450, mode: 'cube', color: '#61f7ff' }, { x: 6900, mode: 'ball', color: '#f66bff' }, { x: 9400, mode: 'cube', color: '#61f7ff' }, { x: 11300, mode: 'ship', color: '#ffb52e' }, { x: 12800, mode: 'cube', color: '#61f7ff' }] : level.id === 'l3' ? [{x:2200,mode:'ship',color:'#ffb66d'},{x:4700,mode:'cube',color:'#ffdb72'},{x:8000,mode:'ship',color:'#ffb66d'},{x:10900,mode:'cube',color:'#ffdb72'}] : level.id === 'l4' ? [{x:2500,mode:'ball',color:'#b7ff39'},{x:5000,mode:'cube',color:'#b7ff39'},{x:7600,mode:'ship',color:'#b7ff39'},{x:10200,mode:'cube',color:'#b7ff39'},{x:12500,mode:'ball',color:'#b7ff39'}] : [];
+  const handAuthoredGates: ModeGate[] = level.id === 'l2' ? [{ x: 1900, mode: 'ship', color: '#ffb52e' }, { x: 4450, mode: 'cube', color: '#61f7ff' }, { x: 6900, mode: 'ball', color: '#f66bff' }, { x: 9400, mode: 'cube', color: '#61f7ff' }, { x: 11300, mode: 'ship', color: '#ffb52e' }, { x: 12800, mode: 'cube', color: '#61f7ff' }] : level.id === 'l3' ? [{x:2200,mode:'ship',color:'#ffb66d'},{x:4700,mode:'cube',color:'#ffdb72'},{x:8000,mode:'ship',color:'#ffb66d'},{x:10900,mode:'cube',color:'#ffdb72'}] : level.id === 'l4' ? [{x:2500,mode:'ball',color:'#b7ff39'},{x:5000,mode:'cube',color:'#b7ff39'},{x:7600,mode:'ship',color:'#b7ff39'},{x:10200,mode:'cube',color:'#b7ff39'},{x:12500,mode:'ball',color:'#b7ff39'}] : [];
+  const gates: ModeGate[] = levelIndex < 4 ? handAuthoredGates : (level.modes.length > 1 ? Array.from({ length: Math.min(6, level.modes.length + Math.floor(levelIndex / 5)) }, (_, n) => ({ x: Math.round(totalDistance * (.18 + n * (.62 / Math.max(1, Math.min(6, level.modes.length + Math.floor(levelIndex / 5)) - 1))), mode: level.modes[(n + 1) % level.modes.length], color: level.color })) : []);
   let mode: 'cube' | 'ship' | 'ball' = 'cube';
   let pressed = false;
   let distance = 0, vy = 0, cubeY = 0, rotation = 0;
