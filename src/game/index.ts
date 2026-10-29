@@ -196,9 +196,10 @@ export function startLevel(id: string) {
   }
 
   const drawSpike = (x: number, y: number, size: number) => {
-    ctx.fillStyle = '#101044'; ctx.strokeStyle = '#000'; ctx.lineWidth = 4;
+    ctx.save(); ctx.shadowColor = '#8b2ff0'; ctx.shadowBlur = 8;
+    ctx.fillStyle = '#8b2ff0'; ctx.strokeStyle = '#5b169c'; ctx.lineWidth = 2.5;
     ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + size / 2, y - size); ctx.lineTo(x + size, y); ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.strokeStyle = '#9fffff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x + 7, y - 4); ctx.lineTo(x + size / 2, y - size + 10); ctx.lineTo(x + size - 7, y - 4); ctx.stroke();
+    ctx.shadowBlur = 0; ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x + 7, y - 5); ctx.lineTo(x + size / 2, y - size + 10); ctx.lineTo(x + size - 7, y - 5); ctx.stroke(); ctx.restore();
   };
   const finish = (success: boolean) => {
     if (dead || won) return;
@@ -250,40 +251,29 @@ export function startLevel(id: string) {
       }
       if (distance >= totalDistance) finish(true);
     }
-    // sky and subtle rhythm grid
+    // Чистый минималистичный уровень по наброску: белый фон, фиолетовая геометрия.
     const beatPulse = .5 + .5 * Math.sin(time / (60000 / level.bpm) * Math.PI * 2);
-    const minecraft = level.theme === 'minecraft';
-    const bg = ctx.createLinearGradient(0, 0, 0, height);
-    if (minecraft) { bg.addColorStop(0, '#79cfff'); bg.addColorStop(.72, '#b9ecff'); bg.addColorStop(1, '#e5f7ff'); }
-    else if (level.theme === 'sunset') { bg.addColorStop(0, '#ffb46f'); bg.addColorStop(.48, '#ec5e9b'); bg.addColorStop(1, '#401f72'); }
-    else if (level.theme === 'toxic') { bg.addColorStop(0, '#182d35'); bg.addColorStop(.55, '#163b36'); bg.addColorStop(1, '#080d24'); }
-    else { bg.addColorStop(0, '#2589f7'); bg.addColorStop(.7, '#173cc7'); bg.addColorStop(1, '#09115b'); }
-    ctx.fillStyle = bg; ctx.fillRect(0, 0, width, height);
-    if (minecraft) {
-      // Пиксельные облака и дальние кубические холмы в стиле Minecraft.
-      ctx.fillStyle = 'rgba(255,255,255,.72)';
-      for (let i = 0; i < 5; i++) { const cx = ((i * 181 - distance * .08) % (width + 180) + width + 180) % (width + 180) - 90; const cy = 70 + (i % 3) * 42; ctx.fillRect(cx, cy, 74, 20); ctx.fillRect(cx + 18, cy - 14, 42, 14); ctx.fillRect(cx + 8, cy + 20, 54, 10); }
-      for (let i = 0; i < 12; i++) { const bx = ((i * 113 - distance * .16) % (width + 100) + width + 100) % (width + 100) - 50; const bh = 45 + (i * 31 % 105); ctx.fillStyle = i % 2 ? '#8bd46b' : '#70bd59'; ctx.fillRect(bx, floorY() - bh, 54, bh); ctx.fillStyle = '#4f9c45'; ctx.fillRect(bx, floorY() - bh, 54, 9); }
+    const minecraft = false; // визуальный стиль уровней теперь единый: белый и фиолетовый.
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, width, height);
+    // Очень лёгкая сетка, чтобы сохранить ощущение игрового редактора.
+    ctx.strokeStyle = 'rgba(126, 48, 210, .055)'; ctx.lineWidth = 1;
+    for (let x = -((distance * .18) % 64); x < width; x += 64) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke(); }
+    for (let y = 32; y < height; y += 64) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke(); }
+    // Лёгкие пунктирные дуги показывают предполагаемые прыжки, как на концепт-рисунке.
+    ctx.save(); ctx.strokeStyle = 'rgba(25, 20, 35, .82)'; ctx.lineWidth = 1.8; ctx.setLineDash([5, 9]);
+    for (let i = 0; i < 4; i++) {
+      const ax = ((i * 260 + 90 - distance * .72) % (width + 260) + width + 260) % (width + 260) - 130;
+      const ay = floorY() - 78 - (i % 2) * 28;
+      ctx.beginPath(); ctx.ellipse(ax + 82, ay - 35, 82, 48, -.18, Math.PI * 1.08, Math.PI * 1.92); ctx.stroke();
     }
-    if (level.theme === 'sunset') {
-      const sunX = width * .76, sunY = height * .25;
-      ctx.save(); ctx.shadowColor = '#ffd27b'; ctx.shadowBlur = 35; ctx.fillStyle = '#ffd27b'; ctx.beginPath(); ctx.arc(sunX, sunY, 54, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
-      ctx.fillStyle = 'rgba(111,34,112,.32)'; for (let i=0;i<5;i++) ctx.fillRect(sunX-54,sunY-25+i*17,108,5); ctx.restore();
-    } else if (level.theme === 'toxic') {
-      ctx.save(); ctx.strokeStyle = 'rgba(183,255,57,.20)'; ctx.lineWidth = 3;
-      for (let i=0;i<8;i++) { const tx=((i*149-distance*.12)%(width+80)+width+80)%(width+80)-40; ctx.strokeRect(tx,50,20,height*.42); ctx.fillStyle='rgba(183,255,57,.12)';ctx.fillRect(tx+4,60,12,height*.38); }
-      ctx.restore();
-    }
-    ctx.fillStyle = `rgba(95,245,255,${.025 + beatPulse * .025})`;
-    for (let x = -((distance * .28) % 72); x < width; x += 72) { ctx.fillRect(x, 0, 2, floorY()); }
-    for (let y = 30; y < floorY(); y += 72) ctx.fillRect(0, y, width, 1);
-    // decorative skyline
-    for (let i = 0; i < 16; i++) { const bx = ((i * 97 - distance * .12) % (width + 120) + width + 120) % (width + 120) - 60; const bh = 35 + (i * 47 % 100); ctx.fillStyle = 'rgba(8,20,100,.24)'; ctx.fillRect(bx, floorY() - bh, 44, bh); }
-    // floor
-    const fy = floorY(); ctx.fillStyle = '#07144f'; ctx.fillRect(0, fy, width, height - fy);
-    ctx.fillStyle = '#e7ffff'; ctx.fillRect(0, fy, width, 5); ctx.shadowColor = '#7dfaff'; ctx.shadowBlur = 18; ctx.fillRect(0, fy, width, 3); ctx.shadowBlur = 0;
-    ctx.strokeStyle = 'rgba(112,225,255,.26)'; ctx.lineWidth = 1;
-    for (let x = -((distance % 48)); x < width; x += 48) { ctx.beginPath(); ctx.moveTo(x, fy + 5); ctx.lineTo(x, height); ctx.stroke(); }
+    ctx.setLineDash([]); ctx.restore();
+    // Белый пол с тонкой фиолетовой кромкой.
+    const fy = floorY(); ctx.fillStyle = '#fff'; ctx.fillRect(0, fy, width, height - fy);
+    ctx.fillStyle = '#8b2ff0'; ctx.fillRect(0, fy, width, 4);
+    ctx.fillStyle = 'rgba(139,47,240,.08)'; ctx.fillRect(0, fy + 4, width, height - fy - 4);
+    // Пунктирные маркеры на полу движутся вместе с уровнем.
+    ctx.fillStyle = 'rgba(139,47,240,.25)';
+    for (let x = -((distance % 42)); x < width; x += 42) ctx.fillRect(x, fy + 18, 18, 2);
     // Varied hazards, pads, orbs and platforms; visuals react to each level's palette.
     for (const o of obstacles) {
       const x = o.x - distance + playerX(); if (x < -70 || x > width + 70) continue;
@@ -292,24 +282,28 @@ export function startLevel(id: string) {
         else drawSpike(x, fy + 1, o.w);
       } else if (o.type === 'saw') {
         const cx = x + o.w / 2, cy = fy - o.h / 2;
-        ctx.save(); ctx.translate(cx, cy); ctx.rotate(time / 110); ctx.shadowColor = level.color; ctx.shadowBlur = 15;
-        ctx.fillStyle = level.theme === 'toxic' ? '#b7ff39' : '#eafaff'; ctx.strokeStyle = '#11152e'; ctx.lineWidth = 3;
-        ctx.beginPath(); for (let k=0;k<24;k++){const a=k*Math.PI/12, r=k%2===0?o.w*.52:o.w*.37; const xx=Math.cos(a)*r, yy=Math.sin(a)*r; if(k===0)ctx.moveTo(xx,yy);else ctx.lineTo(xx,yy);} ctx.closePath();ctx.fill();ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle='#28324e';ctx.beginPath();ctx.arc(0,0,o.w*.19,0,Math.PI*2);ctx.fill();ctx.restore();
+        ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.18)'; ctx.shadowBlur = 5;
+        ctx.fillStyle = '#050505'; ctx.beginPath(); ctx.arc(cx, cy, o.w * .48, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(cx, cy, o.w * .12, 0, Math.PI * 2); ctx.fill(); ctx.restore();
       } else if (o.type === 'platform') {
-        ctx.shadowColor = level.color; ctx.shadowBlur = 10; ctx.fillStyle = minecraft ? '#6a9f42' : level.color; ctx.fillRect(x, fy - o.h, o.w, o.h); ctx.shadowBlur=0; ctx.strokeStyle='#11152e';ctx.lineWidth=3;ctx.strokeRect(x,fy-o.h,o.w,o.h);ctx.fillStyle='rgba(255,255,255,.32)';ctx.fillRect(x+5,fy-o.h+4,o.w-10,3);
+        const py = fy - o.h; const r = Math.min(10, o.h / 2);
+        ctx.save(); ctx.shadowColor = 'rgba(139,47,240,.22)'; ctx.shadowBlur = 8;
+        ctx.fillStyle = '#8b2ff0'; ctx.strokeStyle = '#681bb4'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(x + r, py); ctx.lineTo(x + o.w - r, py); ctx.quadraticCurveTo(x + o.w, py, x + o.w, py + r); ctx.lineTo(x + o.w, py + o.h - r); ctx.quadraticCurveTo(x + o.w, py + o.h, x + o.w - r, py + o.h); ctx.lineTo(x + r, py + o.h); ctx.quadraticCurveTo(x, py + o.h, x, py + o.h - r); ctx.lineTo(x, py + r); ctx.quadraticCurveTo(x, py, x + r, py); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.shadowBlur = 0; ctx.fillStyle = 'rgba(255,255,255,.45)'; ctx.fillRect(x + 7, py + 4, Math.max(0, o.w - 14), 2); ctx.restore();
       } else if (o.type === 'pad') {
-        ctx.save();ctx.shadowColor='#ffe96b';ctx.shadowBlur=18;ctx.fillStyle='#ffe96b';ctx.fillRect(x,fy-o.h,o.w,o.h);ctx.shadowBlur=0;ctx.strokeStyle='#fff7be';ctx.lineWidth=2;ctx.strokeRect(x,fy-o.h,o.w,o.h);ctx.restore();
+        ctx.save();ctx.shadowColor='rgba(255,159,10,.35)';ctx.shadowBlur=12;ctx.fillStyle='#ff9f0a';ctx.fillRect(x,fy-o.h,o.w,o.h);ctx.shadowBlur=0;ctx.strokeStyle='#d87800';ctx.lineWidth=2;ctx.strokeRect(x,fy-o.h,o.w,o.h);ctx.restore();
       } else if (o.type === 'orb') {
-        const cy = fy - 94 + Math.sin(time/160 + o.x)*4; ctx.save();ctx.strokeStyle='#ffe76b';ctx.lineWidth=5;ctx.shadowColor='#ffe76b';ctx.shadowBlur=20;ctx.beginPath();ctx.arc(x+o.w/2,cy,o.w*.42,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle='rgba(255,231,107,.22)';ctx.beginPath();ctx.arc(x+o.w/2,cy,o.w*.28,0,Math.PI*2);ctx.fill();ctx.restore();
+        const cy = fy - 94 + Math.sin(time/160 + o.x)*4; ctx.save(); ctx.fillStyle = '#ff9f0a'; ctx.shadowColor = 'rgba(255,159,10,.35)'; ctx.shadowBlur = 12; ctx.beginPath(); ctx.arc(x+o.w/2,cy,o.w*.43,0,Math.PI*2); ctx.fill(); ctx.shadowBlur = 0; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x+o.w/2,cy,o.w*.25,0,Math.PI*2); ctx.stroke(); ctx.restore();
       } else {
-        ctx.fillStyle = minecraft ? '#8a5a34' : level.color; ctx.strokeStyle = '#10142d'; ctx.lineWidth = 4; ctx.fillRect(x, fy - o.h, o.w, o.h); ctx.strokeRect(x, fy - o.h, o.w, o.h); ctx.fillStyle='rgba(255,255,255,.22)';ctx.fillRect(x+5,fy-o.h+6,8,8);
+        ctx.fillStyle = '#080808'; ctx.strokeStyle = '#080808'; ctx.lineWidth = 2; ctx.fillRect(x, fy - o.h, o.w, o.h); ctx.strokeRect(x, fy - o.h, o.w, o.h); ctx.fillStyle='rgba(255,255,255,.9)';ctx.fillRect(x+7,fy-o.h+7,5,5);
       }
     }
     // Порталы переключения режимов во втором уровне.
     for (const gate of gates) { const gx = gate.x - distance + playerX(); if (gx < -50 || gx > width + 50) continue; ctx.save(); ctx.strokeStyle = gate.color; ctx.lineWidth = 6; ctx.shadowColor = gate.color; ctx.shadowBlur = 18; ctx.beginPath(); ctx.ellipse(gx, fy - 55, 17, 43, 0, 0, Math.PI * 2); ctx.stroke(); ctx.shadowBlur = 0; ctx.restore(); }
     // player and trail
     const skin = get().skin;
-    for (let i = 4; i >= 1; i--) { ctx.globalAlpha = .07 * (5 - i); ctx.fillStyle = skin.c1; ctx.fillRect(playerX() - i * 13, cubeY + i * 2, cubeSize, cubeSize); }
+    for (let i = 4; i >= 1; i--) { ctx.globalAlpha = .07 * (5 - i); ctx.fillStyle = '#8b2ff0'; ctx.fillRect(playerX() - i * 13, cubeY + i * 2, cubeSize, cubeSize); }
     ctx.globalAlpha = 1; ctx.save(); ctx.translate(playerX() + cubeSize / 2, cubeY + cubeSize / 2); ctx.rotate(rotation);
     const customSrc = customSkinSource(skin.icon);
     const customImage = customSrc ? skinImage(customSrc) : null;

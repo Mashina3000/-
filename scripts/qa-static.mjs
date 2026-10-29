@@ -57,6 +57,29 @@ for (const [label, token] of [
   if (game.includes(token)) pass(`${label} is present`); else fail(`Missing expected game feature: ${label}`);
 }
 
+// Guard the requested white-and-purple level style against accidental regressions.
+for (const [label, token] of [
+  ['white level background', "ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, width, height)"],
+  ['purple platform palette', "ctx.fillStyle = '#8b2ff0'"],
+  ['black circular hazards', "ctx.arc(cx, cy, o.w * .48, 0, Math.PI * 2)"],
+  ['orange jump orbs', "ctx.fillStyle = '#ff9f0a'"],
+  ['dashed jump trajectory', 'ctx.setLineDash([5, 9])'],
+  ['spike drawing function', 'const drawSpike =']
+]) {
+  if (game.includes(token)) pass(`${label} is present`); else fail(`Missing level style feature: ${label}`);
+}
+
+// Ensure the Windows build workflow runs both QA and the actual application build.
+const workflow = read('.github/workflows/build-windows.yml');
+for (const [label, token] of [
+  ['static QA workflow step', 'npm run qa:static'],
+  ['TypeScript/Vite build workflow step', 'npm run build'],
+  ['Windows installer workflow step', 'electron-builder --win nsis --publish never'],
+  ['installer artifact upload', 'actions/upload-artifact@v4']
+]) {
+  if (workflow.includes(token)) pass(`${label} is configured`); else fail(`Missing workflow step: ${label}`);
+}
+
 const electron = read('electron.cjs');
 if (electron.includes("'app-icon.ico'")) pass('Electron uses packaged ICO icon');
 else fail('Electron icon path is not the packaged ICO file');

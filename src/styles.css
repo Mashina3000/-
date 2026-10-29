@@ -133,7 +133,7 @@ input[type=range]{accent-color:var(--lime);width:min(260px,40vw)}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
 /* Игровая сцена — этап 2 */
-.game-screen{position:fixed;z-index:20;inset:0;overflow:hidden;background:#102b9c;isolation:isolate;touch-action:manipulation}
+.game-screen{position:fixed;z-index:20;inset:0;overflow:hidden;background:#fff;isolation:isolate;touch-action:manipulation}
 .game-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .game-hud{position:absolute;z-index:2;left:3vw;right:3vw;top:2vh;display:grid;grid-template-columns:1fr 2fr 1fr;align-items:center;gap:1rem;pointer-events:none}
 .game-hud>*{pointer-events:auto}
@@ -141,12 +141,12 @@ input[type=range]{accent-color:var(--lime);width:min(260px,40vw)}
 .game-hud-right .game-percent{white-space:nowrap}
 .game-pause-btn{justify-self:end;white-space:nowrap}
 .pause-card .btn,.tutorial-card .btn{min-width:min(260px,70vw)}
-.game-small-btn{justify-self:start;padding:.55em .85em;border:3px solid #000;border-radius:12px;background:linear-gradient(#ffe36b,#ffa800);color:#382400;font-size:clamp(13px,2vh,20px);box-shadow:0 4px 0 #000}
-.game-title{text-align:center;font-size:clamp(15px,2.8vh,27px);-webkit-text-stroke:1.5px #000;text-shadow:0 3px 0 #000}
-.game-percent{text-align:right;font-size:clamp(23px,4vh,36px);-webkit-text-stroke:2px #000;text-shadow:0 3px 0 #000}
-.game-progress{position:absolute;z-index:2;top:8.4vh;left:25%;width:50%;height:15px;border:3px solid #000;border-radius:10px;background:#050a2e;overflow:hidden;box-shadow:0 3px 0 #000}
-.game-progress i{display:block;width:0;height:100%;background:linear-gradient(90deg,#72ff35,#fff85b);box-shadow:0 0 10px #aaff5e;transition:width .08s linear}
-.game-hint{position:absolute;z-index:2;bottom:calc(21vh + 12px);left:0;right:0;text-align:center;font-size:clamp(12px,2vh,18px);letter-spacing:.08em;text-shadow:0 2px 3px #000;transition:opacity .3s;pointer-events:none}
+.game-small-btn{justify-self:start;padding:.55em .85em;border:2px solid #17121e;border-radius:12px;background:#fff;color:#21132e;font-size:clamp(13px,2vh,20px);box-shadow:0 3px 0 #d8c7e8;font-weight:900}
+.game-title{text-align:center;font-size:clamp(15px,2.8vh,27px);color:#241432;font-weight:1000;letter-spacing:.06em;text-shadow:0 2px 0 #e8d8f8}
+.game-percent{text-align:right;font-size:clamp(23px,4vh,36px);color:#241432;font-weight:1000;text-shadow:0 2px 0 #e8d8f8}
+.game-progress{position:absolute;z-index:2;top:8.4vh;left:25%;width:50%;height:12px;border:2px solid #5b169c;border-radius:10px;background:#f3eafa;overflow:hidden;box-shadow:0 2px 0 #e0d0ef}
+.game-progress i{display:block;width:0;height:100%;background:linear-gradient(90deg,#a855f7,#7628c9);box-shadow:0 0 8px rgba(139,47,240,.35);transition:width .08s linear}
+.game-hint{position:absolute;z-index:2;bottom:calc(21vh + 12px);left:0;right:0;text-align:center;font-size:clamp(12px,2vh,18px);letter-spacing:.08em;color:#39234d;font-weight:800;text-shadow:0 1px 0 #fff;transition:opacity .3s;pointer-events:none}
 .game-hint.hint-out{opacity:0}
 .game-modal{position:absolute;z-index:5;inset:0;display:grid;place-items:center;padding:20px;background:rgba(2,7,35,.68);backdrop-filter:blur(5px)}
 .game-modal.hidden{display:none}
